@@ -3,6 +3,10 @@ import mediapipe as mp
 import math
 import time
 
+def write_cmd(cmd):
+    with open("cmmd.txt", "w") as f:
+        f.write(cmd)
+
 mp_face = mp.solutions.face_mesh
 face = mp_face.FaceMesh()
 
@@ -18,11 +22,11 @@ def ear_calc(idx, marks):
     except:
         return 0
 
-THRESH = 0.27
+THRESH = 0.2git 
 blink_start = None
 pending = False
 first_blink = 0
-DOUBLE_TIME = 0.35
+DOUBLE_TIME = 0.30
 
 def send(cmd):
     print("CMD:", cmd)
@@ -54,12 +58,12 @@ while True:
                         first_blink = now
                     else:
                         if now - first_blink <= DOUBLE_TIME:
-                            send("CONFIRM")
+                            write_cmd("CONFIRM")
                             pending = False
                     blink_start = None
 
     if pending and (now - first_blink) > DOUBLE_TIME:
-        send("MOVE")
+        write_cmd("MOVE")
         pending = False
 
     cv2.imshow("step7 confirm test", frame)
