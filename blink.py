@@ -9,7 +9,7 @@ face = mp_face.FaceMesh()
 L_EYE = [33,160,158,133,153,144]
 R_EYE = [362,387,385,263,380,373]
 
-def eye_ar(idx, marks):
+def ear_calc(idx, marks):
     try:
         A = math.dist(marks[idx[1]], marks[idx[5]])
         B = math.dist(marks[idx[2]], marks[idx[4]])
@@ -20,7 +20,12 @@ def eye_ar(idx, marks):
 
 THRESH = 0.27
 blink_start = None
-closed = False
+pending = False
+first_blink = 0
+DOUBLE_TIME = 0.35
+
+def send(cmd):
+    print("CMD:", cmd)
 
 cap = cv2.VideoCapture(0)
 
@@ -31,24 +36,33 @@ while True:
 
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     res = face.process(rgb)
+    now = time.time()
 
     if res.multi_face_landmarks:
         h, w, _ = frame.shape
         for lm in res.multi_face_landmarks:
             pts = [(int(p.x*w), int(p.y*h)) for p in lm.landmark]
-            ear = (eye_ar(L_EYE, pts) + eye_ar(R_EYE, pts)) / 2
+            ear = (ear_calc(L_EYE, pts) + ear_calc(R_EYE, pts)) / 2
 
             if ear < THRESH:
-                if not closed:
-                    blink_start = time.time()
-                    closed = True
+                if blink_start is None:
+                    blink_start = now
             else:
-                if closed:
-                    dur = time.time() - blink_start
-                    print("blink dur:", dur)
-                    closed = False
+                if blink_start is not None:
+                    if not pending:
+                        pending = True
+                        first_blink = now
+                    else:
+                        if now - first_blink <= DOUBLE_TIME:
+                            send("CONFIRM")
+                            pending = False
+                    blink_start = None
 
-    cv2.imshow("blink test", frame)
+    if pending and (now - first_blink) > DOUBLE_TIME:
+        send("MOVE")
+        pending = False
+
+    cv2.imshow("step7 confirm test", frame)
 
     if cv2.waitKey(1) == ord('q'):
         break
