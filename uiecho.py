@@ -1,9 +1,20 @@
 import streamlit as st
 import os
 from streamlit_autorefresh import st_autorefresh
+import pyttsx3
+
+tts_engine = pyttsx3.init()
+tts_engine.setProperty("rate", 170)
+tts_engine.setProperty("volume", 1.0)
+
+def speak(text):
+    try:
+        tts_engine.say(text)
+        tts_engine.runAndWait()
+    except:
+        pass
 
 st_autorefresh(interval=500, key="ref")
-
 st.set_page_config(page_title="ECHO UI", layout="centered")
 
 options = [
@@ -30,9 +41,11 @@ elif cmd == "CONFIRM":
     selected = options[st.session_state.cursor]
     st.session_state.confirmed = selected
     st.toast(f"CONFIRMED: {selected}")
+    speak(f"{selected} selected")  
 
 if cmd:
     open("cmmd.txt", "w").close()
+
 
 st.markdown(
     """
@@ -45,6 +58,7 @@ st.markdown(
 )
 
 st.write("---")
+
 
 st.markdown(
     """
@@ -61,7 +75,7 @@ st.markdown(
         <p style="color:#ddd; font-size:16px; text-align:center; margin-top:8px;">
             • <b>Single Blink</b> → Move the highlight to the next option <br>
             • <b>Double Blink</b> → Confirm the highlighted option <br>
-            • Keep your face visible and blink naturally (don't squeeze) <br>
+            • Blink naturally (don't squeeze) and stay in camera frame.
         </p>
     </div>
     """,
@@ -85,8 +99,8 @@ if st.session_state.confirmed:
 
 st.write("---")
 
-cols = st.columns(3)
 
+cols = st.columns(3)
 for i, opt in enumerate(options):
     col = cols[i % 3]
 
@@ -99,7 +113,7 @@ for i, opt in enumerate(options):
         bg = "#222"
         color = "white"
         border = "2px solid #444"
-        shadow = "0px 0px 8px rgba(0, 0, 0, 0.4)"
+        shadow = "0px 0px 8px rgba(0,0,0,0.4)"
 
     col.markdown(
         f"""
