@@ -22,7 +22,7 @@ def ear_calc(idx, marks):
     except:
         return 0
 
-THRESH = 0.2git 
+THRESH = 0.26
 blink_start = None
 pending = False
 first_blink = 0
