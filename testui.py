@@ -1,14 +1,17 @@
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 
-st.title("ECHO UI Prototype")
+st_autorefresh(interval=800, key="auto")
 
-options = [
-    "YES", "NO", "HELP",
-    "WATER", "FOOD", "MEDICINE",
-    "CALL NURSE", "PAIN", "EMERGENCY"
-]
+st.title("ECHO UI")
+
 
 cols = st.columns(3)
+buttons = [
+    "YES","NO","HELP",
+    "WATER","FOOD","MEDICINE",
+    "CALL NURSE","PAIN","EMERGENCY"
+]
 
-for i, opt in enumerate(options):
-    cols[i % 3].button(opt, key=f"btn_{i}")
+for i, b in enumerate(buttons):
+    cols[i%3].button(b)
